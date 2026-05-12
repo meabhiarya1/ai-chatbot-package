@@ -6,8 +6,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: "src/index.js",
-      name: "EpycAiAgentWidget",
-      fileName: "epyc-ai-agent-widget",
+      name: "AiChatbotPackage",
+      fileName: "ai-chatbot-package",
     },
     rollupOptions: {
       external: ["react", "react-dom", "lucide-react"],

@@ -1,92 +1,112 @@
-# EPYC AI Agent Widget
+# ai-chatbot-package
 
-A reusable React overlay assistant that can sit on top of any frontend. The client only calls your backend API; the backend keeps the real model key private.
+Installable React AI chatbot overlay for any frontend application. Add the package, configure one backend endpoint, wrap your app once, and the assistant is ready to use.
 
-## Features
+The package only calls your backend API. It does not expose any model API key in the browser.
 
-- Fixed overlay that works above existing UI
-- Compact input state inspired by the assignment reference
-- Smooth expansion into a larger chat panel
-- Thinking state and chat history rendering
-- Configurable backend provider endpoint, with mock mode when no endpoint is set
-- Responsive mobile full-screen behavior
-
-## Project Structure
-
-- `client/` - React widget package and demo app
-- `server/` - Express API that calls OpenAI securely
-
-## Local Setup
+## Install
 
 ```bash
-npm install
-cp client/.env.example client/.env
-cp server/.env.example server/.env
+npm install ai-chatbot-package
 ```
 
-Add your real server-side key in `server/.env`:
+## Environment Variable
 
-```env
-OPENAI_API_KEY=your_key_here
-OPENAI_MODEL=gpt-4.1-mini
-```
-
-Run the backend:
-
-```bash
-npm run dev:server
-```
-
-Run the client in another terminal:
-
-```bash
-npm run dev:client
-```
-
-## Usage
-
-After publishing or installing the package, keep your deployed backend URL in
-`.env`:
+Create or update your frontend `.env` file:
 
 ```env
 VITE_AI_AGENT_ENDPOINT=https://your-deployed-backend.com/api/chat
 ```
 
-Then import the CSS once and wrap your app at the root level:
+After changing `.env`, restart your frontend dev server so Vite can read the updated value.
+
+## App-Level Usage
+
+Import the provider and package CSS once at the top level of your app.
 
 ```jsx
-import { AiAgentProvider } from "epyc-ai-agent-widget";
-import "epyc-ai-agent-widget/style.css";
+import { AiAgentProvider } from "ai-chatbot-package";
+import "ai-chatbot-package/style.css";
+import App from "./App";
 
-export function App() {
+createRoot(document.getElementById("root")).render(
+  <AiAgentProvider
+    title="AI Assistant"
+    endpoint={import.meta.env.VITE_AI_AGENT_ENDPOINT}
+  >
+    <App />
+  </AiAgentProvider>
+);
+```
+
+That is the main integration. Your application stays unchanged, and the chatbot renders as a floating overlay above it.
+
+## React Router Example
+
+```jsx
+import { BrowserRouter } from "react-router-dom";
+import { AiAgentProvider } from "ai-chatbot-package";
+import "ai-chatbot-package/style.css";
+
+export default function Root() {
   return (
-    <AiAgentProvider
-      title="ProtoAI"
-      endpoint={import.meta.env.VITE_AI_AGENT_ENDPOINT}
-    >
-      <YourExistingUi />
+    <AiAgentProvider endpoint={import.meta.env.VITE_AI_AGENT_ENDPOINT}>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </AiAgentProvider>
   );
 }
 ```
 
-You can still render the widget manually if you need more control:
+## Available Props
 
 ```jsx
-import { AiAgentWidget } from "epyc-ai-agent-widget";
-import "epyc-ai-agent-widget/style.css";
+<AiAgentProvider
+  title="AI Assistant"
+  placeholder="Ask anything..."
+  endpoint={import.meta.env.VITE_AI_AGENT_ENDPOINT}
+>
+  <App />
+</AiAgentProvider>
+```
 
-<AiAgentWidget
-  title="ProtoAI"
-  provider={{
-    endpoint: import.meta.env.VITE_AI_AGENT_ENDPOINT,
-  }}
-/>;
+`title` controls the widget label.
+
+`placeholder` controls the input placeholder text.
+
+`endpoint` is the backend chat API URL.
+
+`initialMessages` can provide custom starting assistant messages.
+
+`onSend` can override the default backend request behavior if you need a custom client-side handler.
+
+## Manual Widget Usage
+
+Use `AiAgentProvider` for most apps. If you need manual placement, import the widget directly:
+
+```jsx
+import { AiAgentWidget } from "ai-chatbot-package";
+import "ai-chatbot-package/style.css";
+
+export function App() {
+  return (
+    <>
+      <YourExistingApp />
+      <AiAgentWidget
+        title="AI Assistant"
+        provider={{
+          endpoint: import.meta.env.VITE_AI_AGENT_ENDPOINT,
+        }}
+      />
+    </>
+  );
+}
 ```
 
 ## Backend Endpoint Contract
 
-The widget sends this request to `VITE_AI_AGENT_ENDPOINT`:
+The widget sends this request to the configured endpoint:
 
 ```json
 {
@@ -95,20 +115,48 @@ The widget sends this request to `VITE_AI_AGENT_ENDPOINT`:
 }
 ```
 
-The endpoint should return:
+The backend should return:
 
 ```json
 {
-  "reply": "Assistant response"
+  "reply": "Assistant response",
+  "assistant": {
+    "answer": "Assistant response",
+    "suggestedQuestions": [
+      "Useful follow-up question?",
+      "Another useful follow-up question?"
+    ]
+  }
 }
 ```
 
-## Commit Strategy
+The current widget displays `reply`. The structured `assistant` object is available for future UI improvements such as suggested follow-up buttons.
 
-This project is intentionally developed in small commits:
+## Features
 
-- Project setup
-- Floating overlay UI
-- Configurable chat provider
-- Documentation and demo configuration
-- Polish, testing, and deployment notes
+- Floating overlay above any React UI
+- Compact bottom-centered input
+- Smooth expand and minimize behavior
+- Word-by-word assistant response reveal
+- Thinking state
+- Copy button for assistant messages
+- Hidden but usable chat scrollbar
+- Chat history saved in `localStorage`
+- Saved chats restored on reload
+- New-chat and clear-chat controls
+- Responsive mobile layout
+
+## Publish
+
+```bash
+npm install
+npm run build
+npm pack --dry-run
+npm publish --access public
+```
+
+If your npm account requires 2FA:
+
+```bash
+npm publish --access public --otp=123456
+```

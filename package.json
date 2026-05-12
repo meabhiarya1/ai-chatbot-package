@@ -1,10 +1,10 @@
 {
-  "name": "epyc-ai-agent-widget",
+  "name": "ai-chatbot-package",
   "version": "0.1.0",
   "type": "module",
-  "main": "./dist/epyc-ai-agent-widget.umd.cjs",
-  "module": "./dist/epyc-ai-agent-widget.js",
-  "style": "./dist/epyc-ai-agent-widget.css",
+  "main": "./dist/ai-chatbot-package.umd.cjs",
+  "module": "./dist/ai-chatbot-package.js",
+  "style": "./dist/ai-chatbot-package.css",
   "files": [
     "dist"
   ],
@@ -13,10 +13,10 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/epyc-ai-agent-widget.js",
-      "require": "./dist/epyc-ai-agent-widget.umd.cjs"
+      "import": "./dist/ai-chatbot-package.js",
+      "require": "./dist/ai-chatbot-package.umd.cjs"
     },
-    "./style.css": "./dist/epyc-ai-agent-widget.css"
+    "./style.css": "./dist/ai-chatbot-package.css"
   },
   "scripts": {
     "build": "vite build",

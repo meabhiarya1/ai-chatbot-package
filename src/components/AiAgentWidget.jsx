@@ -22,7 +22,7 @@ const defaultMessages = [
   },
 ];
 
-const storageKey = "epyc-ai-agent-widget:messages";
+const storageKey = "ai-chatbot-package:messages";
 
 function createId() {
   return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
