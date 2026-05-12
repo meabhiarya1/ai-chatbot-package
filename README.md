@@ -15,7 +15,7 @@ npm install ai-chatbot-package
 Create or update your frontend `.env` file:
 
 ```env
-VITE_AI_AGENT_ENDPOINT=https://your-deployed-backend.com/api/chat
+VITE_AI_AGENT_ENDPOINT=https://epyc-frontend-engineering-assignment-ai.onrender.com/api/chat
 ```
 
 After changing `.env`, restart your frontend dev server so Vite can read the updated value.
