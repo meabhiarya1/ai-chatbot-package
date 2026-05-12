@@ -1,10 +1,10 @@
 {
-  "name": "ai-chatbot-package",
+  "name": "ai-chatbot-package-demo",
   "version": "0.1.0",
   "type": "module",
-  "main": "./dist/ai-chatbot-package.umd.cjs",
-  "module": "./dist/ai-chatbot-package.js",
-  "style": "./dist/ai-chatbot-package.css",
+  "main": "./dist/ai-chatbot-package-demo.umd.cjs",
+  "module": "./dist/ai-chatbot-package-demo.js",
+  "style": "./dist/ai-chatbot-package-demo.css",
   "files": [
     "dist"
   ],
@@ -13,10 +13,10 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/ai-chatbot-package.js",
-      "require": "./dist/ai-chatbot-package.umd.cjs"
+      "import": "./dist/ai-chatbot-package-demo.js",
+      "require": "./dist/ai-chatbot-package-demo.umd.cjs"
     },
-    "./style.css": "./dist/ai-chatbot-package.css"
+    "./style.css": "./dist/ai-chatbot-package-demo.css"
   },
   "scripts": {
     "build": "vite build",

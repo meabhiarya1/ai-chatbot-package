@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: "src/index.js",
       name: "AiChatbotPackage",
-      fileName: "ai-chatbot-package",
+      fileName: "ai-chatbot-package-demo",
     },
     rollupOptions: {
       external: ["react", "react-dom", "lucide-react"],

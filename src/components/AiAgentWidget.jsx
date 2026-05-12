@@ -22,7 +22,7 @@ const defaultMessages = [
   },
 ];
 
-const storageKey = "ai-chatbot-package:messages";
+const storageKey = "ai-chatbot-package-demo:messages";
 
 function createId() {
   return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
