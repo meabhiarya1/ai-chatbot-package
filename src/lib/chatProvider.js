@@ -23,19 +23,45 @@ async function callBackendEndpoint(message, history, endpoint) {
     throw new Error(data.error || "Backend chat endpoint failed");
   }
 
-  if (!data.reply) {
+  if (!data.reply && !data.assistant?.answer) {
     throw new Error("Backend chat endpoint did not return a reply");
   }
 
-  return data.reply;
+  return normalizeAssistantReply(data.assistant || data.reply);
 }
 
 async function getMockReply(message) {
   await new Promise((resolve) => window.setTimeout(resolve, 850));
 
-  return [
-    `I can help with "${message}".`,
-    "For now I am running in demo mode because no API key or backend endpoint is configured.",
-    "Add environment variables to connect a real model.",
-  ].join(" ");
+  return {
+    answer:
+      message.toLowerCase() === "hello"
+        ? "Hello! How can I help you today?"
+        : `I can help with "${message}". For now I am running in demo mode because no backend endpoint is configured.`,
+    suggestedQuestions: [
+      "What can you do?",
+      "How do I use the workspace?",
+      "Can you help me write a document?",
+    ],
+  };
+}
+
+function normalizeAssistantReply(reply) {
+  if (typeof reply === "string") {
+    return {
+      answer: reply,
+      suggestedQuestions: [],
+    };
+  }
+
+  return {
+    answer: reply?.answer || "I could not generate a response.",
+    suggestedQuestions: Array.isArray(reply?.suggestedQuestions)
+      ? reply.suggestedQuestions
+          .filter((question) => typeof question === "string")
+          .map((question) => question.trim())
+          .filter(Boolean)
+          .slice(0, 3)
+      : [],
+  };
 }

@@ -54,6 +54,26 @@ function hasSavedConversation(messages) {
   return Boolean(messages?.some((message) => message.role === "user"));
 }
 
+function normalizeAssistantResponse(response) {
+  if (typeof response === "string") {
+    return {
+      answer: response,
+      suggestedQuestions: [],
+    };
+  }
+
+  return {
+    answer: response?.answer || "I could not generate a response.",
+    suggestedQuestions: Array.isArray(response?.suggestedQuestions)
+      ? response.suggestedQuestions
+          .filter((question) => typeof question === "string")
+          .map((question) => question.trim())
+          .filter(Boolean)
+          .slice(0, 3)
+      : [],
+  };
+}
+
 export function AiAgentWidget({
   title = "AI Agent",
   placeholder = "Ask anything...",
@@ -104,9 +124,10 @@ export function AiAgentWidget({
     });
   }, [isOpen, messages, isThinking]);
 
-  function revealAssistantMessage(content) {
+  function revealAssistantMessage(response) {
+    const { answer, suggestedQuestions } = normalizeAssistantResponse(response);
     const messageId = createId();
-    const tokens = content.match(/\S+\s*/g) ?? [content];
+    const tokens = answer.match(/\S+\s*/g) ?? [answer];
 
     setTypingMessageId(messageId);
     setIsTyping(true);
@@ -116,6 +137,7 @@ export function AiAgentWidget({
         id: messageId,
         role: "assistant",
         content: "",
+        suggestedQuestions: [],
       },
     ]);
 
@@ -139,6 +161,16 @@ export function AiAgentWidget({
 
         if (tokenIndex >= tokens.length) {
           window.clearInterval(intervalId);
+          setMessages((current) =>
+            current.map((message) =>
+              message.id === messageId
+                ? {
+                    ...message,
+                    suggestedQuestions,
+                  }
+                : message
+            )
+          );
           setTypingMessageId(null);
           setIsTyping(false);
           resolve();
@@ -147,10 +179,7 @@ export function AiAgentWidget({
     });
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const trimmed = input.trim();
-
+  async function sendMessage(trimmed) {
     if (!trimmed || isThinking || isTyping) {
       return;
     }
@@ -184,6 +213,15 @@ export function AiAgentWidget({
       setIsThinking(false);
       setIsTyping(false);
     }
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    await sendMessage(input.trim());
+  }
+
+  async function handleSuggestedQuestion(question) {
+    await sendMessage(question);
   }
 
   async function handleCopy(message) {
@@ -271,33 +309,56 @@ export function AiAgentWidget({
         {isOpen && (
           <div className="ai-agent-messages" ref={messagesRef}>
             {messages.map((message) => (
-              <article
-                className={`ai-agent-message is-${message.role} ${
-                  typingMessageId === message.id ? "is-typing" : ""
-                }`}
+              <div
+                className={`ai-agent-message-group is-${message.role}`}
                 key={message.id}
               >
-                {message.content}
-                {typingMessageId === message.id && (
-                  <span className="ai-agent-cursor" />
-                )}
+                <article
+                  className={`ai-agent-message is-${message.role} ${
+                    typingMessageId === message.id ? "is-typing" : ""
+                  }`}
+                >
+                  {message.content}
+                  {typingMessageId === message.id && (
+                    <span className="ai-agent-cursor" />
+                  )}
+                  {message.role === "assistant" &&
+                    typingMessageId !== message.id &&
+                    message.content && (
+                      <button
+                        className="ai-agent-copy"
+                        type="button"
+                        onClick={() => handleCopy(message)}
+                        aria-label="Copy assistant response"
+                      >
+                        {copiedMessageId === message.id ? (
+                          <Check size={14} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
+                      </button>
+                    )}
+                </article>
                 {message.role === "assistant" &&
                   typingMessageId !== message.id &&
-                  message.content && (
-                    <button
-                      className="ai-agent-copy"
-                      type="button"
-                      onClick={() => handleCopy(message)}
-                      aria-label="Copy assistant response"
-                    >
-                      {copiedMessageId === message.id ? (
-                        <Check size={14} />
-                      ) : (
-                        <Copy size={14} />
-                      )}
-                    </button>
+                  message.suggestedQuestions?.length > 0 && (
+                    <div className="ai-agent-suggestions">
+                      <span>What you might find useful:</span>
+                      <div>
+                        {message.suggestedQuestions.map((question) => (
+                          <button
+                            type="button"
+                            key={question}
+                            onClick={() => handleSuggestedQuestion(question)}
+                            disabled={isThinking || isTyping}
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   )}
-              </article>
+              </div>
             ))}
             {isThinking && (
               <div className="ai-agent-thinking">

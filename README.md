@@ -131,7 +131,7 @@ The backend should return:
 }
 ```
 
-The current widget displays `reply`. The structured `assistant` object is available for future UI improvements such as suggested follow-up buttons.
+The widget displays `reply` or `assistant.answer`, then renders `assistant.suggestedQuestions` as clickable follow-up chips.
 
 ## Features
 
@@ -139,6 +139,7 @@ The current widget displays `reply`. The structured `assistant` object is availa
 - Compact bottom-centered input
 - Smooth expand and minimize behavior
 - Word-by-word assistant response reveal
+- Clickable suggested question chips
 - Thinking state
 - Copy button for assistant messages
 - Hidden but usable chat scrollbar
