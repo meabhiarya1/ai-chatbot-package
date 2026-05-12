@@ -7,7 +7,7 @@ The package only calls your backend API. It does not expose any model API key in
 ## Install
 
 ```bash
-npm install ai-chatbot-package-demo
+npm install ai-chatbot-package-demo@latest
 ```
 
 ## Environment Variable
